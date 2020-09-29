@@ -7,12 +7,34 @@ from PIL import Image
 import cv2
 from sentence_transformers import SentenceTransformer
 
+def get_images_titles():
+    train_sample = pickle.load(open("splits/train_wiki_full.pickle", "rb"))
+    test_sample = pickle.load(open("splits/test_wiki_full.pickle", "rb"))
+    image_ids = []
+    titles = []
+    all_sample = train_sample + test_sample
+    print("n of all samples: ", len(all_sample))
+    for sample in all_sample:
+        image_ids.append(sample[1])
+        titles.append(sample[0])
+    image_ids = set(image_ids)
+    titles = set(titles)
+    pickle.dump(image_ids, open("data/image_ids.p", "wb"))
+    pickle.dump(titles, open("data/titles.p", "wb"))
+    print("n of all images: ", len(image_ids))
+    print("n of all titles: ", len(titles))
+    """
+    n of all samples:  2558720
+    n of all images:  623678
+    n of all titles:  42550
+    """
+
 def image_encoder():
-    image_path = ""
+    image_path = '/../nlp/data/lyuqing-zharry/wikihow_probing/data/wikihow_data/multimodal/data/train'
     img_names = os.listdir(image_path)
-    real_img_ids = []
-    for name in real_img_names:
-        real_img_ids.append(name.split('.')[0])
+    img_ids = []
+    for name in img_names:
+        img_ids.append(name.split('.')[0])
 
     model = InceptionV3(weights='imagenet')
     new_input = model.input
@@ -35,16 +57,13 @@ def image_encoder():
     print(len(encoded_images))
     pickle.dump(encoded_images, open(image_path + "/encoded_image/encoded_images_new.p", "wb" ))
 
-def sentence_encoder():
+def sentence_encoder(all_titles):
     model = SentenceTransformer('bert-base-nli-mean-tokens')
-    titles = []
-    for sample in sample_data:
-      titles.append(sample[0])
-    all_titles = set(titles)
     encoded_titles = {}
     for title in tqdm(all_titles):
       encoded_titles[title] = model.encode(title)
-    print(len(encoded_titles))
-    pickle.dump(encoded_titles, open(project_path + "/encoded_title/new_encoded_titles.p", "wb" ))
+    pickle.dump(encoded_titles, open("/../nlp/data/lyuqing-zharry/wikihow_probing/data/wikihow_data/multimodal/encoded/encoded_titles.p", "wb" ))
 
-
+if __name__ == '__main__':
+    titles = pickle.load("data/titles.p", "rb")
+    get_images_titles(titles)
