@@ -5,6 +5,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 from PIL import Image
 import cv2
+from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 
 def get_images_titles():
@@ -61,9 +62,14 @@ def sentence_encoder(all_titles):
     model = SentenceTransformer('bert-base-nli-mean-tokens')
     encoded_titles = {}
     for title in tqdm(all_titles):
-      encoded_titles[title] = model.encode(title)
-    pickle.dump(encoded_titles, open("/../nlp/data/lyuqing-zharry/wikihow_probing/data/wikihow_data/multimodal/encoded/encoded_titles.p", "wb" ))
+        encoded_titles[title] = model.encode(title)
+    pickle.dump(encoded_titles, open("encoded/encoded_titles.p", "wb" ))
+    # pickle.dump(encoded_titles, open("/../nlp/data/lyuqing-zharry/wikihow_probing/data/wikihow_data/multimodal/encoded/encoded_titles.p", "wb" ))
 
 if __name__ == '__main__':
-    titles = pickle.load("data/titles.p", "rb")
-    get_images_titles(titles)
+    all_titles = pickle.load(open("data/titles.p", "rb"))
+    print(len(all_titles))
+    sentence_encoder(all_titles)
+
+
+    
